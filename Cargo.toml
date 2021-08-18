@@ -1,0 +1,7 @@
+[package]
+edition = "2018"
+name = "scot_property_info"
+version = "0.1.0"
+[dependencies]
+reqwest = "*"
+
