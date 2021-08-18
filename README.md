@@ -9,6 +9,7 @@ I'd like to have a way to be able to access all publicly available information a
 - [x] Initial repo creation
 - [ ] Define interfaces
 - [ ] Create CLI
+- [ ] Add SIMD data from SIMD provided spreadsheets
 - [ ] Add a geolocation provider to convert between addresses, postcodes etc. (OSM?)
 - [ ] Query the SAA for council tax info (https://www.saa.gov.uk/)
 - [ ] Get market info for the location (https://scotlis.ros.gov.uk/)
