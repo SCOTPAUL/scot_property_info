@@ -1,5 +1,6 @@
 use chrono::prelude::*;
 use chrono::Datelike;
+use serde::Deserialize;
 
 struct AddressInfo {
     lat: f32,
@@ -31,4 +32,14 @@ struct SIMDInfo {
     crime_domain_rank: u32,
     housing_domain_rank: u32,
     population: u32
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SIMDPostcodeInfo {
+    postcode: String,
+    dz: String,
+    rank: u32,
+    vigintile: u8,
+    decile: u8,
+    quintile: u8
 }

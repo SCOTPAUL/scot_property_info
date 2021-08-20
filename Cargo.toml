@@ -4,5 +4,7 @@ name = "scot_property_info"
 version = "0.1.0"
 [dependencies]
 chrono = "*"
+csv = "*"
 reqwest = "*"
+serde = { version = "*", features = ["derive"] }
 structopt = "*"
