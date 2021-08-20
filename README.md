@@ -7,8 +7,8 @@ I'd like to have a way to be able to access all publicly available information a
 ## Progress
 
 - [x] Initial repo creation
-- [ ] Define interfaces
-- [ ] Create CLI
+- [x] Define interfaces
+- [x] Create CLI
 - [ ] Add SIMD data from SIMD provided spreadsheets
 - [ ] Add a geolocation provider to convert between addresses, postcodes etc. (OSM?)
 - [ ] Query the SAA for council tax info (https://www.saa.gov.uk/)
