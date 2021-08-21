@@ -5,6 +5,11 @@ version = "0.1.0"
 [dependencies]
 chrono = "*"
 csv = "*"
-reqwest = "*"
-serde = { version = "*", features = ["derive"] }
+reqwest = { version = "*", features = ["json"] }
 structopt = "*"
+tokio = { version = "*", features = ["full"] }
+urlencoding = "*"
+
+[dependencies.serde]
+features = ["derive"]
+version = "*"

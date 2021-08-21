@@ -2,13 +2,16 @@ use chrono::prelude::*;
 use chrono::Datelike;
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::future::Future;
+use std::error::Error;
 
-struct AddressInfo {
-    lat: f32,
-    lon: f32,
+#[derive(Debug, Deserialize)]
+pub struct AddressInfo {
+    pub lat: f32,
+    pub lon: f32,
     query: Option<String>,
-    road: Option<String>,
-    postcode: String
+    pub road: Option<String>,
+    pub postcode: String
 }
 
 struct TaxBand {
@@ -57,4 +60,15 @@ pub fn fetch_simd_postcode_info() -> Result<HashMap<String, SIMDPostcodeInfo>, c
 
     Ok(postcodes)
 
+}
+
+pub async fn fetch_address_info(query: &str) -> Result<AddressInfo, Box<dyn Error>> {
+    let request_url = format!("https://nominatim.openstreetmap.org/search?q={q}&format=json&addressdetails=1&limit=1",
+                              q = urlencoding::encode(query));
+
+    let resp = reqwest::get(request_url).await?;
+
+    let address_info: AddressInfo = resp.json().await?;
+
+    Ok(address_info)
 }
