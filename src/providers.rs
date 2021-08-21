@@ -1,6 +1,7 @@
 use chrono::prelude::*;
 use chrono::Datelike;
 use serde::Deserialize;
+use std::collections::HashMap;
 
 struct AddressInfo {
     lat: f32,
@@ -36,10 +37,24 @@ struct SIMDInfo {
 
 #[derive(Debug, Deserialize)]
 pub struct SIMDPostcodeInfo {
-    postcode: String,
+    pub postcode: String,
     dz: String,
-    rank: u32,
-    vigintile: u8,
-    decile: u8,
+    pub rank: u32,
+    pub vigintile: u8,
+    pub decile: u8,
     quintile: u8
+}
+
+pub fn fetch_simd_postcode_info() -> Result<HashMap<String, SIMDPostcodeInfo>, csv::Error> {
+    let postcode_bytes = include_bytes!("../resources/simd_postcodes.csv") as &[u8];
+    let mut rdr = csv::Reader::from_reader(postcode_bytes);
+    let mut postcodes = HashMap::new();
+
+    for result in rdr.deserialize() {
+        let record: SIMDPostcodeInfo = result?;
+        postcodes.insert(record.postcode.clone(), record);
+    }
+
+    Ok(postcodes)
+
 }
