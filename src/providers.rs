@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::future::Future;
 use std::error::Error;
 use serde_with::{serde_as, DisplayFromStr};
+use table_extract::Table;
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
@@ -23,9 +24,10 @@ pub struct AddressInfo {
     pub postcode: String
 }
 
-struct TaxBand {
+#[derive(Debug)]
+pub struct TaxBand {
     address: String,
-    band: char
+    band: String
 }
 
 struct PurchasePrice<D> where D: Datelike {
@@ -89,4 +91,31 @@ pub async fn fetch_address_info(query: &str) -> Result<LocationInfo, Box<dyn Err
     address_info_val.query = Some(query.to_string());
 
     Ok(address_info_val)
+}
+
+pub async fn fetch_council_tax_info(location: &LocationInfo) -> Result<Vec<TaxBand>, Box<dyn Error>>{
+    let request_url = format!(
+        "https://www.saa.gov.uk/search/?SEARCHED=1&ST=&SEARCH_TERM={postcode}&DISPLAY_COUNT=100&SEARCH_TABLE=council_tax&searchtype=#results",
+        postcode = urlencoding::encode(location.address.postcode.as_str())
+    );
+
+    let html = reqwest::get(request_url)
+        .await?
+        .text()
+        .await?;
+
+    let table = Table::find_first(html.as_str()).unwrap();
+
+    let mut tax_bands = vec![];
+
+    for row in &table {
+        let tax_band = TaxBand {
+            address: row.get("Property Address").unwrap_or("<ADDRESS_ERROR>").replace("<br>", " "),
+            band: row.get("Band").unwrap_or("<BAND_ERROR>").to_string()
+        };
+
+        tax_bands.push(tax_band);
+    }
+
+    Ok(tax_bands)
 }

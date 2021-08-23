@@ -1,6 +1,6 @@
 mod providers;
 use structopt::StructOpt;
-use crate::providers::{SIMDPostcodeInfo, fetch_simd_postcode_info, fetch_address_info};
+use crate::providers::{SIMDPostcodeInfo, fetch_simd_postcode_info, fetch_address_info, fetch_council_tax_info};
 use std::error::Error;
 use std::collections::HashMap;
 
@@ -30,7 +30,7 @@ async fn main() -> Result<(), Box<dyn Error>>  {
 
     let postcodes = fetch_simd_postcode_info()?;
 
-    if let Some(postcode) = &opt.postcode {
+    if let Some(mut postcode) = &opt.postcode {
         let postcode_no_whitespace = remove_postcode_whitespace(&postcode);
 
         let address_info = fetch_address_info(&postcode).await?;
@@ -45,6 +45,10 @@ async fn main() -> Result<(), Box<dyn Error>>  {
         else {
             println!("Couldn't find postcode {:?}, please check it's correct", postcode);
         }
+
+        let council_tax_info = fetch_council_tax_info(&address_info).await?;
+
+        println!("Council tax info was {:?}", council_tax_info);
     }
 
     Ok(())
