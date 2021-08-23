@@ -4,13 +4,22 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use std::future::Future;
 use std::error::Error;
+use serde_with::{serde_as, DisplayFromStr};
 
+#[serde_as]
 #[derive(Debug, Deserialize)]
-pub struct AddressInfo {
+pub struct LocationInfo {
+    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub lat: f32,
+    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub lon: f32,
     query: Option<String>,
     pub road: Option<String>,
+    pub address: AddressInfo
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AddressInfo {
     pub postcode: String
 }
 
@@ -62,13 +71,22 @@ pub fn fetch_simd_postcode_info() -> Result<HashMap<String, SIMDPostcodeInfo>, c
 
 }
 
-pub async fn fetch_address_info(query: &str) -> Result<AddressInfo, Box<dyn Error>> {
+pub async fn fetch_address_info(query: &str) -> Result<LocationInfo, Box<dyn Error>> {
     let request_url = format!("https://nominatim.openstreetmap.org/search?q={q}&format=json&addressdetails=1&limit=1",
                               q = urlencoding::encode(query));
 
-    let resp = reqwest::get(request_url).await?;
+    let resp = reqwest::Client::builder()
+        .user_agent("scot_property_info")
+        .build()?
+        .get(request_url)
+        .send()
+        .await?;
 
-    let address_info: AddressInfo = resp.json().await?;
+    let mut address_info: Vec<LocationInfo> = resp.json().await?;
 
-    Ok(address_info)
+    let mut address_info_val = address_info.remove(0);
+
+    address_info_val.query = Some(query.to_string());
+
+    Ok(address_info_val)
 }

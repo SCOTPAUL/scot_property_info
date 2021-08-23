@@ -35,10 +35,12 @@ async fn main() -> Result<(), Box<dyn Error>>  {
 
         let address_info = fetch_address_info(&postcode).await?;
 
+        println!("Address info {:?}", address_info);
+
         let simd_info = postcodes.get(&postcode_no_whitespace);
 
         if let Some(simd) = simd_info {
-            println!("SIMD decile for this postcode is {:?}", simd.decile)
+            println!("SIMD decile for this postcode is {:?}", simd.decile.to_string())
         }
         else {
             println!("Couldn't find postcode {:?}, please check it's correct", postcode);
