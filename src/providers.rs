@@ -26,8 +26,8 @@ pub struct AddressInfo {
 
 #[derive(Debug)]
 pub struct TaxBand {
-    address: String,
-    band: String
+    pub address: String,
+    pub band: String
 }
 
 struct PurchasePrice<D> where D: Datelike {
@@ -109,8 +109,15 @@ pub async fn fetch_council_tax_info(location: &LocationInfo) -> Result<Vec<TaxBa
     let mut tax_bands = vec![];
 
     for row in &table {
+        let address: Vec<&str> = row.get("Property Address")
+            .unwrap_or("<ADDRESS_ERROR>")
+            .split("<br>")
+            .collect();
+        let address_without_postcode_or_city = &address[0..address.len() - 2];
+        let address_str = address_without_postcode_or_city.join("\n");
+
         let tax_band = TaxBand {
-            address: row.get("Property Address").unwrap_or("<ADDRESS_ERROR>").replace("<br>", " "),
+            address: address_str,
             band: row.get("Band").unwrap_or("<BAND_ERROR>").to_string()
         };
 

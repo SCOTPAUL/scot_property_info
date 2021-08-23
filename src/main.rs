@@ -1,8 +1,10 @@
 mod providers;
 use structopt::StructOpt;
-use crate::providers::{SIMDPostcodeInfo, fetch_simd_postcode_info, fetch_address_info, fetch_council_tax_info};
+use crate::providers::{SIMDPostcodeInfo, fetch_simd_postcode_info, fetch_address_info, fetch_council_tax_info, TaxBand};
 use std::error::Error;
 use std::collections::HashMap;
+use prettytable::{Table, row, cell};
+
 
 
 #[derive(Debug, StructOpt)]
@@ -24,13 +26,25 @@ fn to_upper(s: &str) -> String {
     s.to_uppercase()
 }
 
+fn create_council_tax_table(tax_bands: &Vec<TaxBand>) -> Table {
+    let mut table = Table::new();
+
+    table.add_row(row!["Address", "Tax Band"]);
+    for tax_band in tax_bands {
+        table.add_row(row![tax_band.address, tax_band.band]);
+    }
+
+    table
+
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>>  {
     let opt: Opts = Opts::from_args();
 
     let postcodes = fetch_simd_postcode_info()?;
 
-    if let Some(mut postcode) = &opt.postcode {
+    if let Some(postcode) = &opt.postcode {
         let postcode_no_whitespace = remove_postcode_whitespace(&postcode);
 
         let address_info = fetch_address_info(&postcode).await?;
@@ -48,7 +62,9 @@ async fn main() -> Result<(), Box<dyn Error>>  {
 
         let council_tax_info = fetch_council_tax_info(&address_info).await?;
 
-        println!("Council tax info was {:?}", council_tax_info);
+        let council_tax_table = create_council_tax_table(&council_tax_info);
+
+        council_tax_table.printstd();
     }
 
     Ok(())

@@ -9,6 +9,7 @@ serde_with = "*"
 structopt = "*"
 table-extract = "*"
 urlencoding = "*"
+prettytable-rs = "*"
 
 [dependencies.reqwest]
 features = ["json"]
