@@ -12,7 +12,7 @@ I'd like to have a way to be able to access all publicly available information a
 - [x] Add SIMD data from SIMD provided spreadsheets
 - [x] Add a geolocation provider to convert between addresses, postcodes etc. (OSM?)
 - [x] Query the SAA for council tax info (https://www.saa.gov.uk/)
-- [ ] Allow for non-postcode queries
+- [x] Allow for non-postcode queries
 - [ ] Get market info for the location (https://scotlis.ros.gov.uk/)
 - [ ] Format the info from the above providers
 - [ ] Improve SIMD data to give more info about each part of the score

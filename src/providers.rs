@@ -6,6 +6,7 @@ use std::future::Future;
 use std::error::Error;
 use serde_with::{serde_as, DisplayFromStr};
 use table_extract::Table;
+use simple_error::{simple_error, SimpleError};
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
@@ -86,11 +87,17 @@ pub async fn fetch_address_info(query: &str) -> Result<LocationInfo, Box<dyn Err
 
     let mut address_info: Vec<LocationInfo> = resp.json().await?;
 
-    let mut address_info_val = address_info.remove(0);
+    if address_info.is_empty() {
+        Err(simple_error!("Address info empty for {}", &query).into())
+    }
+    else {
+        let mut address_info_val = address_info.remove(0);
 
-    address_info_val.query = Some(query.to_string());
+        address_info_val.query = Some(query.to_string());
 
-    Ok(address_info_val)
+        Ok(address_info_val)
+    }
+
 }
 
 pub async fn fetch_council_tax_info(location: &LocationInfo) -> Result<Vec<TaxBand>, Box<dyn Error>>{

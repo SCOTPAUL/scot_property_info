@@ -5,11 +5,12 @@ version = "0.1.0"
 [dependencies]
 chrono = "*"
 csv = "*"
+prettytable-rs = "*"
 serde_with = "*"
+simple-error = "*"
 structopt = "*"
 table-extract = "*"
 urlencoding = "*"
-prettytable-rs = "*"
 
 [dependencies.reqwest]
 features = ["json"]

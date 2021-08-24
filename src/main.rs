@@ -38,34 +38,35 @@ fn create_council_tax_table(tax_bands: &Vec<TaxBand>) -> Table {
 
 }
 
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>>  {
     let opt: Opts = Opts::from_args();
 
     let postcodes = fetch_simd_postcode_info()?;
 
-    if let Some(postcode) = &opt.postcode {
-        let postcode_no_whitespace = remove_postcode_whitespace(&postcode);
+    let location_query = opt.postcode.or(opt.address).unwrap();
 
-        let address_info = fetch_address_info(&postcode).await?;
+    let address_info = fetch_address_info(&location_query).await?;
 
-        println!("Address info {:?}", address_info);
+    let postcode_no_whitespace = remove_postcode_whitespace(&address_info.address.postcode);
 
-        let simd_info = postcodes.get(&postcode_no_whitespace);
+    println!("Address info {:?}", address_info);
 
-        if let Some(simd) = simd_info {
-            println!("SIMD decile for this postcode is {:?}", simd.decile.to_string())
-        }
-        else {
-            println!("Couldn't find postcode {:?}, please check it's correct", postcode);
-        }
+    let simd_info = postcodes.get(&postcode_no_whitespace);
 
-        let council_tax_info = fetch_council_tax_info(&address_info).await?;
-
-        let council_tax_table = create_council_tax_table(&council_tax_info);
-
-        council_tax_table.printstd();
+    if let Some(simd) = simd_info {
+        println!("SIMD decile for this postcode is {:?}", simd.decile.to_string())
     }
+    else {
+        println!("Couldn't find postcode {:?}, please check it's correct", &address_info.address.postcode);
+    }
+
+    let council_tax_info = fetch_council_tax_info(&address_info).await?;
+
+    let council_tax_table = create_council_tax_table(&council_tax_info);
+
+    council_tax_table.printstd();
 
     Ok(())
 }
